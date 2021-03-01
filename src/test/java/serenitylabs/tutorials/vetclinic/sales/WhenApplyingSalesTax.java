@@ -14,55 +14,58 @@ import java.util.Collection;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static serenitylabs.tutorials.vetclinic.sales.model.ProductCategory.Snacks;
+import static serenitylabs.tutorials.vetclinic.sales.model.ProductCategory.*;
 
 @RunWith(Parameterized.class)
 public class WhenApplyingSalesTax {
     private final static double NINE_PERCENT = 0.09;
     private static final double THIRTEEN_POINT_FIVE_PERCENT = 0.135;
-//    private final int quantity;
-//    private final String name;
-//    private final ProductCategory category;
-//    private final double unitPrice;
-//    private final double expectedRate;
-//    private final String expectedRateName;
-//    private final double expectedAmount;
-//
-//    public WhenApplyingSalesTax(int quantity, String name, ProductCategory category, double unitPrice, double expectedRate, String expectedRateName, double expectedAmount) {
-//        this.quantity = quantity;
-//        this.name = name;
-//        this.category = category;
-//        this.unitPrice = unitPrice;
-//        this.expectedRate = expectedRate;
-//        this.expectedRateName = expectedRateName;
-//        this.expectedAmount = expectedAmount;
-//    }
-//
-//    @Parameters(name="{0} x {1} in category {2}, costing ${3}")
-//    public static Collection<Object[]> data() {
-//        return Arrays.asList(new Object[][] {
-//                {1, "crisps", Snacks, 3.00, 0.09, "Reduced", 0.27},
-//                {50, "crisps", Snacks, 3.00, 0.135, "Reduced", 20.25}
-//        });
-//    }
-//
-//    @Test
-//    public void crisps_should_be_charge_at_the_correct_rate() {
-//        // Given
-//        LineItem crisps = LineItem.forSaleOf(quantity)
-//                .itemCalled(name)
-//                .inCategory(category)
-//                .withUnitPriceOf(unitPrice);
-//
-//        // When
-//        SalesTaxService salesTaxService = new SalesTaxService();
-//        SalesTax calculatedSalesTax = salesTaxService.salesTaxEntryFor(crisps);
-//
-//        // Then
-//        SalesTax expectedSalesTax = SalesTax.atRateOf(expectedRate).withName(expectedRateName).forAnAmountOf(expectedAmount);
-//
-//        assertThat(calculatedSalesTax, equalTo(expectedSalesTax));
-//    }
+    private final int quantity;
+    private final String name;
+    private final ProductCategory category;
+    private final double unitPrice;
+    private final double expectedRate;
+    private final String expectedRateName;
+    private final double expectedAmount;
+
+    public WhenApplyingSalesTax(int quantity, String name, ProductCategory category, double unitPrice, double expectedRate, String expectedRateName, double expectedAmount) {
+        this.quantity = quantity;
+        this.name = name;
+        this.category = category;
+        this.unitPrice = unitPrice;
+        this.expectedRate = expectedRate;
+        this.expectedRateName = expectedRateName;
+        this.expectedAmount = expectedAmount;
+    }
+
+    @Parameterized.Parameters(name="{0} x {1} in category {2}, costing {3}")
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                {1, "crisps", Snacks, 3.00, 0.09, "Reduced", 0.27},
+                {50, "crisps", Snacks, 3.00, 0.135, "Reduced", 20.25},
+                {1, "training dogs", Books,  5.00,       0.0, "Zero",         0.0},
+                {1, "pills",         Medicine, 5.00,     0.0, "Zero",         0.0},
+                {1, "rubber bone",   Toys,    10.00,     0.23, "Standard",   2.30},
+        });
+    }
+
+    @Test
+    public void crisps_should_be_charge_at_the_correct_rate() {
+        // Given
+        LineItem crisps = LineItem.forSaleOf(quantity)
+                .itemCalled(name)
+                .inCategory(category)
+                .withUnitPriceOf(unitPrice);
+
+        // When
+        SalesTaxService salesTaxService = new SalesTaxService();
+        SalesTax calculatedSalesTax = salesTaxService.salesTaxEntryFor(crisps);
+
+        // Then
+        SalesTax expectedSalesTax = SalesTax.atRateOf(expectedRate).withName(expectedRateName).forAnAmountOf(expectedAmount);
+
+        assertThat(calculatedSalesTax, equalTo(expectedSalesTax));
+    }
 
     @Test
     public void crisps_should_be_charge_at_the_reduced_rate() {

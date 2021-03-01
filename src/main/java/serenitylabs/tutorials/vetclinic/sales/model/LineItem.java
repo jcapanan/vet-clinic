@@ -1,46 +1,90 @@
 package serenitylabs.tutorials.vetclinic.sales.model;
 
+import java.util.Objects;
+
 public class LineItem {
+    private final double unitCost;
     private static int quantity;
-    private final String itemName;
+    private final String description;
     private final ProductCategory category;
-    private final double price;
     private double total;
 
-    public LineItem(int quantity, String itemName, ProductCategory category, double price) {
+    public LineItem(double unitCost, int quantity, String description, ProductCategory category) {
+        this.unitCost = unitCost;
         this.quantity = quantity;
-        this.itemName = itemName;
+        this.description = description;
         this.category = category;
-        this.price = price;
     }
 
-    public static WithItemName forSaleOf(int quantity) {
-        return new LineItemBuilder(quantity);
+    public double getUnitCost() {
+        return unitCost;
+    }
+
+    public static int getQuantity() {
+        return quantity;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ProductCategory getCategory() {
+        return category;
     }
 
     public double getTotal() {
-        return total;
+        return quantity * unitCost;
     }
 
-    public interface WithItemName {
-        WithCategory itemCalled(String itemName);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LineItem lineItem = (LineItem) o;
+        return Double.compare(lineItem.unitCost, unitCost) == 0 &&
+                quantity == lineItem.quantity &&
+                Objects.equals(description, lineItem.description) &&
+                category == lineItem.category;
     }
 
-    public interface WithCategory {
+    @Override
+    public int hashCode() {
+        return Objects.hash(unitCost, quantity, description, category);
+    }
+
+    @Override
+    public String toString() {
+        return "LineItem{" +
+                "unitCost=" + unitCost +
+                ", quanity=" + quantity +
+                ", description='" + description + '\'' +
+                ", category=" + category +
+                '}';
+    }
+
+    public static ItemCalled forSaleOf(int quantity) {
+        return new LineItemBuilder(quantity);
+    }
+
+    public interface ItemCalled {
+        InCategory itemCalled(String itemName);
+    }
+
+    public interface InCategory {
         LineItemBuilder inCategory(ProductCategory category);
     }
 
-    public static class LineItemBuilder implements WithItemName, WithCategory{
+    public static class LineItemBuilder implements ItemCalled, InCategory {
         private int quantity;
-        private String itemName;
+        private String description;
         private ProductCategory category;
 
         public LineItemBuilder(int quantity) {
             this.quantity = quantity;
         }
 
-        public WithCategory itemCalled(String itemName) {
-            this.itemName = itemName;
+        public InCategory itemCalled(String description) {
+            this.description = description;
             return this;
         }
 
@@ -50,7 +94,7 @@ public class LineItem {
         }
 
         public LineItem withUnitPriceOf(double price) {
-            return new LineItem(quantity, itemName, category, price);
+            return new LineItem(price, quantity, description, category);
         }
     }
 }
