@@ -1,0 +1,103 @@
+package serenitylabs.tutorials.vetclinic.sales;
+
+import junitparams.Parameters;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import serenitylabs.tutorials.vetclinic.sales.model.LineItem;
+import serenitylabs.tutorials.vetclinic.sales.model.ProductCategory;
+import serenitylabs.tutorials.vetclinic.sales.model.SalesTax;
+import serenitylabs.tutorials.vetclinic.sales.model.SalesTaxService;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static serenitylabs.tutorials.vetclinic.sales.model.ProductCategory.Snacks;
+
+@RunWith(Parameterized.class)
+public class WhenApplyingSalesTax {
+    private final static double NINE_PERCENT = 0.09;
+    private static final double THIRTEEN_POINT_FIVE_PERCENT = 0.135;
+//    private final int quantity;
+//    private final String name;
+//    private final ProductCategory category;
+//    private final double unitPrice;
+//    private final double expectedRate;
+//    private final String expectedRateName;
+//    private final double expectedAmount;
+//
+//    public WhenApplyingSalesTax(int quantity, String name, ProductCategory category, double unitPrice, double expectedRate, String expectedRateName, double expectedAmount) {
+//        this.quantity = quantity;
+//        this.name = name;
+//        this.category = category;
+//        this.unitPrice = unitPrice;
+//        this.expectedRate = expectedRate;
+//        this.expectedRateName = expectedRateName;
+//        this.expectedAmount = expectedAmount;
+//    }
+//
+//    @Parameters(name="{0} x {1} in category {2}, costing ${3}")
+//    public static Collection<Object[]> data() {
+//        return Arrays.asList(new Object[][] {
+//                {1, "crisps", Snacks, 3.00, 0.09, "Reduced", 0.27},
+//                {50, "crisps", Snacks, 3.00, 0.135, "Reduced", 20.25}
+//        });
+//    }
+//
+//    @Test
+//    public void crisps_should_be_charge_at_the_correct_rate() {
+//        // Given
+//        LineItem crisps = LineItem.forSaleOf(quantity)
+//                .itemCalled(name)
+//                .inCategory(category)
+//                .withUnitPriceOf(unitPrice);
+//
+//        // When
+//        SalesTaxService salesTaxService = new SalesTaxService();
+//        SalesTax calculatedSalesTax = salesTaxService.salesTaxEntryFor(crisps);
+//
+//        // Then
+//        SalesTax expectedSalesTax = SalesTax.atRateOf(expectedRate).withName(expectedRateName).forAnAmountOf(expectedAmount);
+//
+//        assertThat(calculatedSalesTax, equalTo(expectedSalesTax));
+//    }
+
+    @Test
+    public void crisps_should_be_charge_at_the_reduced_rate() {
+        // Given
+        LineItem crisps = LineItem.forSaleOf(1)
+                                  .itemCalled("salt and vinegar crisps")
+                                  .inCategory(Snacks)
+                                  .withUnitPriceOf(3.00);
+
+        // When
+        SalesTaxService salesTaxService = new SalesTaxService();
+        SalesTax calculatedSalesTax = salesTaxService.salesTaxEntryFor(crisps);
+
+        // Then
+        SalesTax expectedSalesTax = SalesTax.atRateOf(NINE_PERCENT).withName("Reduced").forAnAmountOf(0.27);
+
+        assertThat(calculatedSalesTax, equalTo(expectedSalesTax));
+    }
+
+    @Test
+    public void over_100_euros_of_crisps_is_charged_at_a_higher_rate() {
+        LineItem crisps = LineItem.forSaleOf(50)
+                                  .itemCalled("salt and vinegar crisps")
+                                  .inCategory(Snacks)
+                                  .withUnitPriceOf(3.00);
+
+        // When
+        SalesTaxService salesTaxService = new SalesTaxService();
+        SalesTax calculatedSalesTax = salesTaxService.salesTaxEntryFor(crisps);
+
+        // Then
+        SalesTax expectedSalesTax = SalesTax.atRateOf(THIRTEEN_POINT_FIVE_PERCENT)
+                                            .withName("Reduced")
+                                            .forAnAmountOf(0.25);
+
+        assertThat(calculatedSalesTax, equalTo(expectedSalesTax));
+    }
+}
